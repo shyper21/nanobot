@@ -11,6 +11,13 @@ fi
 
 mkdir -p "$dir"
 mkdir -p "$dir/workspace"
+# Gunakan /data sebagai persistent storage
+if [ -d "/data" ]; then
+    export HOME_NANOBOT="/data"
+    mkdir -p /data
+    rm -rf "$dir"
+    ln -sf /data "$dir"
+fi
 python3 - <<'PYEOF'
 import os, json
 user_id = str(os.environ.get("TELEGRAM_USER_ID", ""))
