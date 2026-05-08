@@ -1,23 +1,6 @@
-#!/bin/sh
-dir="$HOME/.nanobot"
-if [ -d "$dir" ] && [ ! -w "$dir" ]; then
-    owner_uid=$(stat -c %u "$dir" 2>/dev/null || stat -f %u "$dir" 2>/dev/null)
-    cat >&2 <<EOF
-Error: $dir is not writable (owned by UID $owner_uid, running as UID $(id -u)).
-Fix: sudo chown -R 1000:1000 ~/.nanobot
-EOF
-    exit 1
-fi
-
-mkdir -p "$dir"
-mkdir -p "$dir/workspace"
-python3 - <<'PYEOF'
+PYEOF'
 import os, json
-user_id_raw = os.environ.get("TELEGRAM_USER_ID", "")
-try:
-    user_id = int(user_id_raw)
-except:
-    user_id = user_id_raw
+user_id = str(os.environ.get("TELEGRAM_USER_ID", ""))
 
 cfg = {
     "providers": {"openrouter": {"apiKey": os.environ.get("OPENROUTER_API_KEY", "")}},
@@ -29,5 +12,3 @@ print("✅ Config berhasil dibuat")
 print(f"📱 Telegram token: {'✓' if os.environ.get('TELEGRAM_BOT_TOKEN') else '✗ KOSONG!'}")
 print(f"👤 User ID: {user_id}")
 PYEOF
-
-exec nanobot gateway
