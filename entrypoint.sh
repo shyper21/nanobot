@@ -21,21 +21,40 @@ fi
 python3 - <<'PYEOF'
 import os, json
 user_id = str(os.environ.get("TELEGRAM_USER_ID", ""))
+port = int(os.environ.get("PORT", 18790))
+api_key = os.environ.get("NANOBOT_API_KEY", "")
+
 cfg = {
     "providers": {
         "gemini": {"apiKey": os.environ.get("GEMINI_API_KEY", "")},
+        "groq": {"apiKey": os.environ.get("GROQ_API_KEY", "")},
         "openrouter": {"apiKey": os.environ.get("OPENROUTER_API_KEY", "")}
     },
     "agents": {
         "defaults": {
-            "provider": os.environ.get("NANOBOT_PROVIDER", "gemini"),
-            "model": os.environ.get("NANOBOT_MODEL", "gemini-2.5-flash")
+            "provider": "gemini",
+            "model": "gemini-2.5-flash"
         }
     },
-    "channels": {"telegram": {"enabled": True, "token": os.environ.get("TELEGRAM_BOT_TOKEN", ""), "allowFrom": [user_id]}}
+    "gateway": {
+        "host": "0.0.0.0",
+        "port": port,
+        "api_key": api_key
+    },
+    "transcription": {
+        "provider": "groq",
+        "model": "whisper-large-v3"
+    },
+    "channels": {
+        "telegram": {
+            "enabled": True,
+            "token": os.environ.get("TELEGRAM_BOT_TOKEN", ""),
+            "allowFrom": [user_id]
+        }
+    }
 }
 open(os.path.expanduser("~/.nanobot/config.json"), "w").write(json.dumps(cfg))
-print("Config OK")
+print("Config OK - API exposed on port", port)
 PYEOF
 
 exec nanobot gateway
