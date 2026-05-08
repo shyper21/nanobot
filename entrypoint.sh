@@ -22,8 +22,16 @@ python3 - <<'PYEOF'
 import os, json
 user_id = str(os.environ.get("TELEGRAM_USER_ID", ""))
 cfg = {
-    "providers": {"openrouter": {"apiKey": os.environ.get("OPENROUTER_API_KEY", "")}},
-    "agents": {"defaults": {"provider": "openrouter", "model": os.environ.get("NANOBOT_MODEL", "deepseek/deepseek-r1:free")}},
+    "providers": {
+        "gemini": {"apiKey": os.environ.get("GEMINI_API_KEY", "")},
+        "openrouter": {"apiKey": os.environ.get("OPENROUTER_API_KEY", "")}
+    },
+    "agents": {
+        "defaults": {
+            "provider": os.environ.get("NANOBOT_PROVIDER", "gemini"),
+            "model": os.environ.get("NANOBOT_MODEL", "gemini-2.5-flash")
+        }
+    },
     "channels": {"telegram": {"enabled": True, "token": os.environ.get("TELEGRAM_BOT_TOKEN", ""), "allowFrom": [user_id]}}
 }
 open(os.path.expanduser("~/.nanobot/config.json"), "w").write(json.dumps(cfg))
