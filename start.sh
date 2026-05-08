@@ -1,7 +1,7 @@
 #!/bin/bash
 mkdir -p ~/.nanobot
 
-cat > ~/.nanobot/config.json << EOF
+cat > ~/.nanobot/config.json << ENDOFCONFIG
 {
   "providers": {
     "openrouter": {
@@ -11,7 +11,7 @@ cat > ~/.nanobot/config.json << EOF
   "agents": {
     "defaults": {
       "provider": "openrouter",
-      "model": "${NANOBOT_MODEL:-deepseek/deepseek-r1:free}"
+      "model": "${NANOBOT_MODEL}"
     }
   },
   "channels": {
@@ -22,7 +22,7 @@ cat > ~/.nanobot/config.json << EOF
     }
   }
 }
-EOF
+ENDOFCONFIG
 
 pip install nanobot-ai --quiet
 nanobot gateway
