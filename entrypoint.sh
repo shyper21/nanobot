@@ -10,6 +10,7 @@ EOF
 fi
 
 mkdir -p "$dir"
+mkdir -p "$dir/workspace"
 python3 - <<'PYEOF'
 import os, json
 user_id_raw = os.environ.get("TELEGRAM_USER_ID", "")
@@ -29,4 +30,4 @@ print(f"📱 Telegram token: {'✓' if os.environ.get('TELEGRAM_BOT_TOKEN') else
 print(f"👤 User ID: {user_id}")
 PYEOF
 
-exec nanobot "$@"
+exec nanobot gateway
