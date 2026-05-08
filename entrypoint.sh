@@ -50,4 +50,8 @@ cfg = {
 open(os.path.expanduser("~/.nanobot/config.json"), "w").write(json.dumps(cfg))
 print(f"Config OK - API exposed on port {port}")
 PYEOF
-exec nanobot gateway
+# Gateway untuk Telegram (background, internal port)
+nanobot gateway --port 18790 --host 127.0.0.1 &
+
+# API server untuk SpeakGPT (foreground, public port Railway)
+exec nanobot serve --port "$PORT" --host 0.0.0.0
