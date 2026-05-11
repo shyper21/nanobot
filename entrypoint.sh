@@ -31,8 +31,8 @@ cfg = {
     },
     "agents": {
         "defaults": {
-            "provider": "gemini",
-            "model": "gemini-2.5-flash"
+            "provider": "openrouter",
+            "model": "deepseek/deepseek-chat"
         }
     },
     "gateway": {
