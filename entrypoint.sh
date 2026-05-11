@@ -18,37 +18,52 @@ if [ -d "/data" ]; then
     rm -rf "$dir"
     ln -sf /data "$dir"
 fi
+
+# PUBLIC_PORT = port yang di-expose ke Railway (dari env var PORT)
+PUBLIC_PORT=${PORT:-8080}
+
 python3 - <<'PYEOF'
 import os, json
 user_id = str(os.environ.get("TELEGRAM_USER_ID", ""))
-port = int(os.environ.get("PORT", 18790))
 
 cfg = {
     "providers": {
-        "gemini": {"apiKey": os.environ.get("GEMINI_API_KEY", "")},
-        "groq": {"apiKey": os.environ.get("GROQ_API_KEY", "")},
-        "openrouter": {"apiKey": os.environ.get("OPENROUTER_API_KEY", "")}
+        "gemini":      {"apiKey": os.environ.get("GEMINI_API_KEY", "")},
+        "groq":        {"apiKey": os.environ.get("GROQ_API_KEY", "")},
+        "openrouter":  {"apiKey": os.environ.get("OPENROUTER_API_KEY", "")}
     },
     "agents": {
         "defaults": {
+            # ─── Ganti default dari Gemini ke OpenRouter ───────────────
             "provider": "openrouter",
-            "model": "deepseek/deepseek-chat"
+            "model":    "deepseek/deepseek-chat"
         }
     },
     "gateway": {
         "host": "0.0.0.0",
-        "port": port
+        # Gateway health server pakai port internal (bukan public port)
+        # supaya tidak bentrok dengan nanobot serve di PUBLIC_PORT
+        "port": 18790
     },
     "channels": {
         "telegram": {
-            "enabled": True,
-            "token": os.environ.get("TELEGRAM_BOT_TOKEN", ""),
+            "enabled":   True,
+            "token":     os.environ.get("TELEGRAM_BOT_TOKEN", ""),
             "allowFrom": [user_id]
         }
     }
 }
 open(os.path.expanduser("~/.nanobot/config.json"), "w").write(json.dumps(cfg))
-print(f"Config OK - API exposed on port {port}")
+print("Config OK")
 PYEOF
 
+echo "Starting nanobot serve on port $PUBLIC_PORT (API)..."
+nanobot serve --port "$PUBLIC_PORT" --host 0.0.0.0 &
+SERVE_PID=$!
+
+# Tunggu serve siap sebelum gateway jalan
+sleep 3
+
+echo "Starting nanobot gateway (Telegram)..."
+# Gateway jalan di port 18790 internal — Telegram tidak butuh public port
 exec nanobot gateway
